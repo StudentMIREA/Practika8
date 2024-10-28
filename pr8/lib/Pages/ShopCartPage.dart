@@ -5,10 +5,8 @@ import 'package:pr8/api_service.dart';
 import 'package:pr8/model/items.dart';
 
 class ShopCartPage extends StatefulWidget {
-  const ShopCartPage(
-      {super.key, required this.updateCount, required this.navToShopCart});
+  const ShopCartPage({super.key, required this.navToShopCart});
 
-  final Function() updateCount;
   final Function(int i) navToShopCart;
 
   @override
@@ -115,12 +113,11 @@ class _ShopCartPageState extends State<ShopCartPage> {
 
   // Переход на страницу с товарами
   void NavToItem(index) async {
-    int? answ = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ItemPage(
           index: index,
-          updateCount: () => widget.updateCount(),
           navToShopCart: (i) => widget.navToShopCart(i),
         ),
       ),

@@ -4,9 +4,9 @@ class Items {
   final String image;
   final double cost;
   final String describtion;
-  final bool favorite;
-  final bool shopcart;
-  final int count;
+  bool favorite;
+  bool shopcart;
+  int count;
 
   Items({
     required this.id,

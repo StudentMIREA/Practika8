@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:pr8/Pages/AddPage.dart';
 import 'package:pr8/Pages/ItemPage.dart';
 import 'package:pr8/api_service.dart';
-import 'package:pr8/model/ShoppingCart.dart';
 import 'package:pr8/model/items.dart';
 
 class ItemsPage extends StatefulWidget {
-  const ItemsPage(
-      {super.key, required this.updateCount, required this.navToShopCart});
+  const ItemsPage({super.key, required this.navToShopCart});
 
-  final Function() updateCount;
   final Function(int i) navToShopCart;
 
   @override
@@ -17,95 +15,129 @@ class ItemsPage extends StatefulWidget {
 
 class _ItemsPageState extends State<ItemsPage> {
   late Future<List<Items>> ItemsList;
+  late List<Items> UpdatedItemsList;
 
   @override
   void initState() {
     super.initState();
     ItemsList = ApiService().getProducts();
+    ApiService().getProducts().then(
+          (value) => {UpdatedItemsList = value},
+        );
   }
 
-  /*
-
-  void AddFavorite(int index) {
+  void _refreshData() {
     setState(() {
-      if (!Favorite.any((el) => el == index)) {
-        Favorite.add(index);
-      } else {
-        Favorite.remove(index);
-      }
+      ItemsList = ApiService().getProducts();
     });
   }
 
-  void AddShopCart(index) async {
+  void AddFavorite(
+    Items this_item,
+  ) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: !this_item.favorite,
+        shopcart: this_item.shopcart,
+        count: this_item.count);
+    ApiService().updateProductStatus(new_item);
     setState(() {
-      if (!ShoppingCart.any((el) => el.id == index)) {
-        ShoppingCart.add(ShoppingCartItem(index, 1));
-      } else {
-        ShoppingCart.removeWhere((el) => el.id == index);
-      }
-      widget.updateCount();
+      UpdatedItemsList.elementAt(this_item.id).favorite = !this_item.favorite;
     });
   }
 
+  void AddShopCart(Items this_item) async {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: this_item.favorite,
+        shopcart: !this_item.shopcart,
+        count: !this_item.shopcart ? 1 : 0);
+    ApiService().updateProductStatus(new_item);
+    setState(() {
+      UpdatedItemsList.elementAt(this_item.id).shopcart = !this_item.shopcart;
+      UpdatedItemsList.elementAt(this_item.id).count =
+          !this_item.shopcart ? 1 : 0;
+    });
+  }
 
   void NavToAdd(BuildContext context) async {
-    Items item = await Navigator.push(
+    await Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => AddPage(
-                items: ItemsList,
-              )),
+      MaterialPageRoute(builder: (context) => AddPage()),
     );
-    setState(() {
-      ItemsList.add(item);
-    });
+    _refreshData();
   }
-*/
 
   void NavToItem(index) async {
-    int? answ = await Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ItemPage(
           index: index,
-          updateCount: () => widget.updateCount(),
           navToShopCart: (i) => widget.navToShopCart(i),
         ),
       ),
     );
-    /*
-    setState(() {
-      if (answ != null) {
-        ItemsList.removeAt(answ);
-      }
-    });
-    */
+    _refreshData();
   }
 
-/*
-  void increment(index) {
+  void increment(Items this_item) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: this_item.favorite,
+        shopcart: this_item.shopcart,
+        count: this_item.count + 1);
+    ApiService().updateProductStatus(new_item);
     setState(() {
-      ShoppingCart.elementAt(ShoppingCart.indexWhere((el) => el.id == index))
-          .count++;
-      widget.updateCount();
+      UpdatedItemsList.elementAt(this_item.id).count += 1;
     });
   }
 
-  void decrement(index) {
+  void decrement(Items this_item) {
+    final count = this_item.count;
+    Items new_item;
+    if (count == 1) {
+      new_item = Items(
+          id: this_item.id,
+          name: this_item.name,
+          image: this_item.image,
+          cost: this_item.cost,
+          describtion: this_item.describtion,
+          favorite: this_item.favorite,
+          shopcart: false,
+          count: 0);
+    } else {
+      new_item = Items(
+          id: this_item.id,
+          name: this_item.name,
+          image: this_item.image,
+          cost: this_item.cost,
+          describtion: this_item.describtion,
+          favorite: this_item.favorite,
+          shopcart: this_item.shopcart,
+          count: this_item.count - 1);
+    }
+    ApiService().updateProductStatus(new_item);
     setState(() {
-      if (ShoppingCart.elementAt(
-              ShoppingCart.indexWhere((el) => el.id == index)).count >
-          1) {
-        ShoppingCart.elementAt(ShoppingCart.indexWhere((el) => el.id == index))
-            .count--;
+      if (count == 1) {
+        UpdatedItemsList.elementAt(this_item.id).favorite = false;
       } else {
-        ShoppingCart.removeWhere((el) => el.id == index);
+        UpdatedItemsList.elementAt(this_item.id).count -= 1;
       }
-      widget.updateCount();
     });
   }
-
-  */
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +156,7 @@ class _ItemsPageState extends State<ItemsPage> {
                 ),
               ),
               onPressed: () {
-                //NavToAdd(context);
+                NavToAdd(context);
               },
             ),
           ],
@@ -251,10 +283,11 @@ class _ItemsPageState extends State<ItemsPage> {
                                           alignment: Alignment.centerRight,
                                           child: IconButton(
                                               onPressed: () => {
-                                                    //AddFavorite(
-                                                    //ItemsList.elementAt(index).id)
+                                                    AddFavorite(UpdatedItemsList
+                                                        .elementAt(index))
                                                   },
-                                              icon: ItemsList.elementAt(index)
+                                              icon: UpdatedItemsList.elementAt(
+                                                          index)
                                                       .favorite
                                                   ? const Icon(Icons.favorite)
                                                   : const Icon(
@@ -264,7 +297,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                     ]),
                                   ),
 //Количество товаров в корзине
-                                  ItemsList.elementAt(index).shopcart
+                                  UpdatedItemsList.elementAt(index).shopcart
                                       ? SizedBox(
                                           height: 40.0,
                                           width: MediaQuery.of(context)
@@ -283,7 +316,9 @@ class _ItemsPageState extends State<ItemsPage> {
                                                         icon:
                                                             Icon(Icons.remove),
                                                         onPressed: () => {
-                                                              //decrement(ItemsList.elementAt(index).id)
+                                                              decrement(ItemsList
+                                                                  .elementAt(
+                                                                      index))
                                                             }),
                                                     Container(
                                                       height: 25.0,
@@ -303,8 +338,9 @@ class _ItemsPageState extends State<ItemsPage> {
                                                             const EdgeInsets
                                                                 .all(1.0),
                                                         child: Text(
-                                                          ItemsList.elementAt(
-                                                                  index)
+                                                          UpdatedItemsList
+                                                                  .elementAt(
+                                                                      index)
                                                               .count
                                                               .toString(),
                                                           style:
@@ -321,7 +357,9 @@ class _ItemsPageState extends State<ItemsPage> {
                                                     IconButton(
                                                         icon: Icon(Icons.add),
                                                         onPressed: () => {
-                                                              //increment(ItemsList.elementAt(index).id)
+                                                              increment(ItemsList
+                                                                  .elementAt(
+                                                                      index))
                                                             }),
                                                   ]),
                                             ),
@@ -355,8 +393,8 @@ class _ItemsPageState extends State<ItemsPage> {
                                                   style:
                                                       TextStyle(fontSize: 12)),
                                               onPressed: () {
-                                                //AddShopCart(
-                                                // ItemsList.elementAt(index).id);
+                                                AddShopCart(
+                                                    ItemsList.elementAt(index));
                                               },
                                             ),
                                           ),

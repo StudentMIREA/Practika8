@@ -6,9 +6,12 @@ import 'package:pr8/model/items.dart';
 class ApiService {
   final Dio _dio = Dio();
 
+  //final ip = '192.168.1.121';
+  final ip = '10.192.229.70';
+
   Future<List<Items>> getProducts() async {
     try {
-      final response = await _dio.get('http://192.168.1.121:8080/products');
+      final response = await _dio.get('http://${ip}:8080/products');
       if (response.statusCode == 200) {
         List<Items> products = (response.data as List)
             .map((product) => Items.fromJson(product))
@@ -25,8 +28,7 @@ class ApiService {
 
   Future<List<Items>> getFavoriteProducts() async {
     try {
-      final response =
-          await _dio.get('http://192.168.1.121:8080/favorite_products');
+      final response = await _dio.get('http://${ip}:8080/favorite_products');
       if (response.statusCode == 200) {
         List<Items> products = (response.data as List)
             .map((product) => Items.fromJson(product))
@@ -43,8 +45,7 @@ class ApiService {
 
   Future<List<Items>> getShopCartProducts() async {
     try {
-      final response =
-          await _dio.get('http://192.168.1.121:8080/shop_cart_products');
+      final response = await _dio.get('http://${ip}:8080/shop_cart_products');
       if (response.statusCode == 200) {
         List<Items> products = (response.data as List)
             .map((product) => Items.fromJson(product))
@@ -61,8 +62,7 @@ class ApiService {
 
   Future<int> getCountShopCartProducts() async {
     try {
-      final response =
-          await _dio.get('http://192.168.1.121:8080/shop_cart_products');
+      final response = await _dio.get('http://${ip}:8080/shop_cart_products');
       if (response.statusCode == 200) {
         int count = (response.data as List).toList().length;
 
@@ -76,7 +76,7 @@ class ApiService {
   }
 
   Future<Items> getProductsByID(int index) async {
-    final link = 'http://192.168.1.121:8080/products/${index.toString()}';
+    final link = 'http://${ip}:8080/products/${index.toString()}';
     try {
       final response = await _dio.get(link);
       if (response.statusCode == 200) {
@@ -92,7 +92,7 @@ class ApiService {
   }
 
   Future<void> updateProductStatus(Items item) async {
-    final link = 'http://192.168.1.121:8080/products/update/${item.id}';
+    final link = 'http://${ip}:8080/products/update/${item.id}';
     try {
       final response = await _dio.put(link, data: {
         'Name': item.name,
@@ -114,9 +114,31 @@ class ApiService {
   }
 
   Future<void> deleteProduct(int index) async {
-    final link = 'http://192.168.1.121:8080/products/delete/${index}';
+    final link = 'http://${ip}:8080/products/delete/${index}';
     try {
       final response = await _dio.delete(link);
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
+  Future<void> addProduct(Items item) async {
+    final link = 'http://${ip}:8080/products/create';
+    try {
+      final response = await _dio.post(link, data: {
+        'Name': item.name,
+        'Image': item.image,
+        'Cost': item.cost,
+        'Describtion': item.describtion,
+        'Favorite': item.favorite,
+        'ShopCart': item.shopcart,
+        'Count': item.count,
+      });
       if (response.statusCode == 200) {
         return;
       } else {

@@ -4,10 +4,8 @@ import 'package:pr8/api_service.dart';
 import 'package:pr8/model/items.dart';
 
 class FavoritePage extends StatefulWidget {
-  const FavoritePage(
-      {super.key, required this.updateCount, required this.navToShopCart});
+  const FavoritePage({super.key, required this.navToShopCart});
 
-  final Function() updateCount;
   final Function(int i) navToShopCart;
 
   @override
@@ -46,7 +44,6 @@ class _FavoritePageState extends State<FavoritePage> {
       MaterialPageRoute(
         builder: (context) => ItemPage(
           index: index,
-          updateCount: () => widget.updateCount(),
           navToShopCart: (i) => widget.navToShopCart(i),
         ),
       ),

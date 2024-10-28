@@ -3,13 +3,8 @@ import 'package:pr8/api_service.dart';
 import 'package:pr8/model/items.dart';
 
 class ItemPage extends StatefulWidget {
-  const ItemPage(
-      {super.key,
-      required this.index,
-      required this.updateCount,
-      required this.navToShopCart});
+  const ItemPage({super.key, required this.index, required this.navToShopCart});
   final int index;
-  final Function() updateCount;
   final Function(int i) navToShopCart;
 
   @override
@@ -19,50 +14,47 @@ class ItemPage extends StatefulWidget {
 class _ItemPageState extends State<ItemPage> {
   late Future<Items> item;
   late Future<Items> updated_item;
+  int count = 0;
+  bool favorite = false;
+  bool shopcart = false;
 
   @override
   void initState() {
     super.initState();
     item = ApiService().getProductsByID(widget.index);
+    ApiService().getProductsByID(widget.index).then(
+          (value) => {
+            count = value.count,
+            favorite = value.favorite,
+            shopcart = value.shopcart
+          },
+        );
   }
 
-  void _refreshData() {
+  void UpdateItem(Items this_item) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: favorite,
+        shopcart: shopcart,
+        count: count);
+    ApiService().updateProductStatus(new_item);
+  }
+
+  void AddFavorite() {
     setState(() {
-      updated_item = ApiService().getProductsByID(widget.index);
-      item = updated_item;
+      favorite = !favorite;
     });
   }
 
-  void AddFavorite(Items this_item) {
-    Items new_item = Items(
-        id: this_item.id,
-        name: this_item.name,
-        image: this_item.image,
-        cost: this_item.cost,
-        describtion: this_item.describtion,
-        favorite: !this_item.favorite,
-        shopcart: this_item.shopcart,
-        count: this_item.count);
-    ApiService().updateProductStatus(new_item).then((_) {
-      _refreshData();
+  void AddShopCart() {
+    setState(() {
+      shopcart = !shopcart;
+      count = 1;
     });
-  }
-
-  void AddShopCart(Items this_item) async {
-    Items new_item = Items(
-        id: this_item.id,
-        name: this_item.name,
-        image: this_item.image,
-        cost: this_item.cost,
-        describtion: this_item.describtion,
-        favorite: this_item.favorite,
-        shopcart: !this_item.shopcart,
-        count: this_item.count == 0 ? 1 : 0);
-    await ApiService().updateProductStatus(new_item);
-    initState() {
-      super.initState();
-      item = ApiService().getProductsByID(widget.index);
-    }
   }
 
   void remItem(int i, BuildContext context) {
@@ -129,52 +121,20 @@ class _ItemPageState extends State<ItemPage> {
     });
   }
 
-  void increment(Items this_item) async {
-    Items new_item = Items(
-        id: this_item.id,
-        name: this_item.name,
-        image: this_item.image,
-        cost: this_item.cost,
-        describtion: this_item.describtion,
-        favorite: this_item.favorite,
-        shopcart: this_item.shopcart,
-        count: this_item.count + 1);
-    await ApiService().updateProductStatus(new_item);
-    initState() {
-      super.initState();
-      item = ApiService().getProductsByID(widget.index);
-    }
+  void increment() {
+    setState(() {
+      count += 1;
+    });
   }
 
-  void decrement(Items this_item) async {
-    Items new_item;
-    if (this_item.count == 1) {
-      new_item = Items(
-          id: this_item.id,
-          name: this_item.name,
-          image: this_item.image,
-          cost: this_item.cost,
-          describtion: this_item.describtion,
-          favorite: this_item.favorite,
-          shopcart: false,
-          count: 0);
-    } else {
-      new_item = Items(
-          id: this_item.id,
-          name: this_item.name,
-          image: this_item.image,
-          cost: this_item.cost,
-          describtion: this_item.describtion,
-          favorite: this_item.favorite,
-          shopcart: this_item.shopcart,
-          count: this_item.count - 1);
-    }
-
-    await ApiService().updateProductStatus(new_item);
-    initState() {
-      super.initState();
-      item = ApiService().getProductsByID(widget.index);
-    }
+  void decrement() {
+    setState(() {
+      if (count == 1) {
+        shopcart = false;
+      } else {
+        count -= 1;
+      }
+    });
   }
 
   @override
@@ -209,6 +169,13 @@ class _ItemPageState extends State<ItemPage> {
                 style: TextStyle(fontSize: 16.0),
               ),
               backgroundColor: const Color.fromARGB(255, 255, 246, 218),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () {
+                  UpdateItem(item);
+                  Navigator.pop(context);
+                },
+              ),
             ),
             body: SingleChildScrollView(
               child: Container(
@@ -274,7 +241,7 @@ class _ItemPageState extends State<ItemPage> {
                                 ),
                               ),
 // товар не добавлен в корзину
-                              !item.shopcart
+                              !shopcart
                                   ? Padding(
                                       padding: const EdgeInsets.only(
                                           left: 50.0, right: 40.0),
@@ -298,13 +265,13 @@ class _ItemPageState extends State<ItemPage> {
                                             children: [
                                               IconButton(
                                                   onPressed: () =>
-                                                      {AddShopCart(item)},
+                                                      {AddShopCart()},
                                                   icon: const Icon(Icons
                                                       .shopping_cart_outlined)),
                                               IconButton(
                                                   onPressed: () =>
-                                                      {AddFavorite(item)},
-                                                  icon: item.favorite
+                                                      {AddFavorite()},
+                                                  icon: favorite
                                                       ? const Icon(
                                                           Icons.favorite)
                                                       : const Icon(Icons
@@ -340,8 +307,8 @@ class _ItemPageState extends State<ItemPage> {
                                                 children: [
                                                   IconButton(
                                                       onPressed: () =>
-                                                          {AddFavorite(item)},
-                                                      icon: item.favorite
+                                                          {AddFavorite()},
+                                                      icon: favorite
                                                           ? const Icon(
                                                               Icons.favorite)
                                                           : const Icon(Icons
@@ -410,7 +377,7 @@ class _ItemPageState extends State<ItemPage> {
                                                     IconButton(
                                                       icon: Icon(Icons.remove),
                                                       onPressed: () =>
-                                                          {decrement(item)},
+                                                          {decrement()},
                                                       iconSize: 30,
                                                     ),
                                                     Container(
@@ -431,7 +398,7 @@ class _ItemPageState extends State<ItemPage> {
                                                             const EdgeInsets
                                                                 .all(5.0),
                                                         child: Text(
-                                                          item.count.toString(),
+                                                          count.toString(),
                                                           style:
                                                               const TextStyle(
                                                                   fontSize:
@@ -446,7 +413,7 @@ class _ItemPageState extends State<ItemPage> {
                                                     IconButton(
                                                       icon: Icon(Icons.add),
                                                       onPressed: () =>
-                                                          {increment(item)},
+                                                          {increment()},
                                                       iconSize: 30,
                                                     ),
                                                   ]),

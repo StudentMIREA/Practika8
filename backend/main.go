@@ -154,7 +154,7 @@ func createProductHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received new Product: %+v\n", newProduct)
 
-	newProduct.ID = len(products) + 1
+	newProduct.ID = products[len(products)-1].ID + 1
 	products = append(products, newProduct)
 
 	w.Header().Set("Content-Type", "application/json")
@@ -231,7 +231,6 @@ func updateProductHandler(w http.ResponseWriter, r *http.Request) {
 	// Декодируем обновлённые данные продукта
 	var updatedProduct Product
 	err = json.NewDecoder(r.Body).Decode(&updatedProduct)
-	fmt.Println(updatedProduct.Name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
