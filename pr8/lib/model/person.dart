@@ -17,7 +17,7 @@ class Person {
       id: json['ID'],
       name: json['Name'],
       image: json['Image'],
-      phone: json['Phone'].toDouble(),
+      phone: json['Phone'],
       mail: json['Mail'],
     );
   }

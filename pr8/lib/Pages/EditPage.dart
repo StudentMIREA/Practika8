@@ -35,12 +35,13 @@ class _EditPageState extends State<EditPage> {
     });
   }
 
-  void UpdateUser() async {
+  void UpdateUser() {
     if (imageController.text.isNotEmpty &&
         nameController.text.isNotEmpty &&
         phoneController.text.isNotEmpty &&
         mailController.text.isNotEmpty) {
-      await ApiService().updateUser(Person(
+      print(nameController.text);
+      ApiService().updateUser(Person(
           id: 1,
           image: imageController.text,
           name: nameController.text,
@@ -184,12 +185,7 @@ class _EditPageState extends State<EditPage> {
                             borderRadius: BorderRadius.circular(5),
                           )),
                       onPressed: () {
-                        if (imageController.text.isNotEmpty &&
-                            nameController.text.isNotEmpty &&
-                            mailController.text.isNotEmpty &&
-                            phoneController.text.isNotEmpty) {
-                          UpdateUser();
-                        }
+                        UpdateUser();
                       },
                       child: const Text('Сохранить',
                           style: TextStyle(fontSize: 16, color: Colors.black)))

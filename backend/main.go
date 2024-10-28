@@ -324,7 +324,7 @@ func updateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Получаем ID из URL
-	idStr := r.URL.Path[len("/Products/update/"):]
+	idStr := r.URL.Path[len("/users/update/"):]
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		http.Error(w, "Invalid Product ID", http.StatusBadRequest)
