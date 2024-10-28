@@ -63,16 +63,15 @@ class _ItemsPageState extends State<ItemsPage> {
         cost: this_item.cost,
         describtion: this_item.describtion,
         favorite: this_item.favorite,
-        shopcart: !this_item.shopcart,
-        count: !this_item.shopcart ? 1 : 0);
+        shopcart: true,
+        count: 1);
     ApiService().updateProductStatus(new_item);
     setState(() {
       UpdatedItemsList.elementAt(
               UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
-          .shopcart = !this_item.shopcart;
+          .shopcart = true;
       UpdatedItemsList.elementAt(
-              UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
-          .count = !this_item.shopcart ? 1 : 0;
+          UpdatedItemsList.indexWhere((el) => el.id == this_item.id)).count = 1;
     });
   }
 
@@ -330,9 +329,10 @@ class _ItemsPageState extends State<ItemsPage> {
                                                         icon:
                                                             Icon(Icons.remove),
                                                         onPressed: () => {
-                                                              decrement(ItemsList
-                                                                  .elementAt(
-                                                                      index))
+                                                              decrement(
+                                                                  UpdatedItemsList
+                                                                      .elementAt(
+                                                                          index))
                                                             }),
                                                     Container(
                                                       height: 25.0,
@@ -371,9 +371,10 @@ class _ItemsPageState extends State<ItemsPage> {
                                                     IconButton(
                                                         icon: Icon(Icons.add),
                                                         onPressed: () => {
-                                                              increment(ItemsList
-                                                                  .elementAt(
-                                                                      index))
+                                                              increment(
+                                                                  UpdatedItemsList
+                                                                      .elementAt(
+                                                                          index))
                                                             }),
                                                   ]),
                                             ),
