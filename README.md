@@ -72,5 +72,4 @@
 
 #### Конечный результат
 
-https://github.com/user-attachments/assets/78da1f48-9b99-44c0-a1d5-d6fbeb2a01eb
-
+https://github.com/user-attachments/assets/db780198-5c73-4c44-94ab-201fc17b18c8
