@@ -5,5 +5,20 @@ class Person {
   String phone;
   String mail;
 
-  Person(this.id, this.image, this.name, this.phone, this.mail);
+  Person(
+      {required this.id,
+      required this.image,
+      required this.name,
+      required this.phone,
+      required this.mail});
+
+  factory Person.fromJson(Map<String, dynamic> json) {
+    return Person(
+      id: json['ID'],
+      name: json['Name'],
+      image: json['Image'],
+      phone: json['Phone'].toDouble(),
+      mail: json['Mail'],
+    );
+  }
 }

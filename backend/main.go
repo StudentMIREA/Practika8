@@ -26,6 +26,14 @@ type User struct {
 	Mail  string
 }
 
+var users = []User{{
+	ID:    1,
+	Image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRNxMnQ2pjj2xCdKwhhogZhYKYvjlkQgOW_8THBTOzJ_L7Zd-51oXh1_YfobgmQBq2JsEc&usqp=CAU",
+	Name:  "Рябова Екатерина",
+	Phone: "8(800)555-35-35",
+	Mail:  "mail@bk.ru",
+}}
+
 var products = []Product{
 	{
 		ID:          1,
@@ -288,6 +296,66 @@ func getShopCartProductsHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(shopCartProducts)
 }
 
+func getUserByIDHandler(w http.ResponseWriter, r *http.Request) {
+	// Получаем ID из URL
+	idStr := r.URL.Path[len("/Users/"):]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid Product ID", http.StatusBadRequest)
+		return
+	}
+
+	// Ищем продукт с данным ID
+	for _, user := range users {
+		if user.ID == id {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(user)
+			return
+		}
+	}
+
+	// Если продукт не найден
+	http.Error(w, "Product not found", http.StatusNotFound)
+}
+
+func updateUserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPut {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+	// Получаем ID из URL
+	idStr := r.URL.Path[len("/Products/update/"):]
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		http.Error(w, "Invalid Product ID", http.StatusBadRequest)
+		return
+	}
+
+	// Декодируем обновлённые данные продукта
+	var updatedUser User
+	err = json.NewDecoder(r.Body).Decode(&updatedUser)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// Ищем продукт для обновления
+	for i, user := range users {
+		if user.ID == id {
+			users[i].Name = updatedUser.Name
+			users[i].Image = updatedUser.Image
+			users[i].Phone = updatedUser.Phone
+			users[i].Mail = updatedUser.Mail
+
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(products[i])
+			return
+		}
+	}
+
+	// Если продукт не найден
+	http.Error(w, "Product not found", http.StatusNotFound)
+}
+
 func main() {
 	http.HandleFunc("/products", getProductsHandler)           // Получить все продукты
 	http.HandleFunc("/products/create", createProductHandler)  // Создать продукт
@@ -297,6 +365,9 @@ func main() {
 
 	http.HandleFunc("/favorite_products", getFavoriteProductsHandler)
 	http.HandleFunc("/shop_cart_products", getShopCartProductsHandler)
+
+	http.HandleFunc("/users/", getUserByIDHandler)
+	http.HandleFunc("/users/update/", updateUserHandler)
 
 	fmt.Println("Server is running on port 8080!")
 	http.ListenAndServe(":8080", nil)

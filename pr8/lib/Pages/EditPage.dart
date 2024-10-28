@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pr8/Pages/component/Person.dart';
+import 'package:pr8/api_service.dart';
 import 'package:pr8/model/person.dart';
 
 class EditPage extends StatefulWidget {
@@ -10,20 +10,44 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPageState extends State<EditPage> {
-  final TextEditingController imageController =
-      TextEditingController(text: PersonList.elementAt(0).image);
-  final TextEditingController nameController =
-      TextEditingController(text: PersonList.elementAt(0).name);
-  final TextEditingController phoneController =
-      TextEditingController(text: PersonList.elementAt(0).phone);
-  final TextEditingController mailController =
-      TextEditingController(text: PersonList.elementAt(0).mail);
-  String img_link = PersonList.elementAt(0).image;
+  late Future<Person> person;
+  final TextEditingController imageController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
+  final TextEditingController mailController = TextEditingController();
+  String img_link = '';
+
+  @override
+  void initState() {
+    super.initState();
+    ApiService().getUserByID(1).then((value) => {
+          imageController.text = value.image,
+          nameController.text = value.name,
+          phoneController.text = value.phone,
+          mailController.text = value.mail,
+          img_link = value.image
+        });
+  }
 
   void enter_img(String text) {
     setState(() {
       img_link = text;
     });
+  }
+
+  void UpdateUser() async {
+    if (imageController.text.isNotEmpty &&
+        nameController.text.isNotEmpty &&
+        phoneController.text.isNotEmpty &&
+        mailController.text.isNotEmpty) {
+      await ApiService().updateUser(Person(
+          id: 1,
+          image: imageController.text,
+          name: nameController.text,
+          phone: phoneController.text,
+          mail: mailController.text));
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -164,13 +188,7 @@ class _EditPageState extends State<EditPage> {
                             nameController.text.isNotEmpty &&
                             mailController.text.isNotEmpty &&
                             phoneController.text.isNotEmpty) {
-                          Person newPerson = Person(
-                              0,
-                              imageController.text,
-                              nameController.text,
-                              phoneController.text,
-                              mailController.text);
-                          Navigator.pop(context, newPerson);
+                          UpdateUser();
                         }
                       },
                       child: const Text('Сохранить',

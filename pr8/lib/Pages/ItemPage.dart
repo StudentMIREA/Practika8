@@ -44,13 +44,33 @@ class _ItemPageState extends State<ItemPage> {
     ApiService().updateProductStatus(new_item);
   }
 
-  void AddFavorite() {
+  void AddFavorite(Items this_item) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: !this_item.favorite,
+        shopcart: this_item.shopcart,
+        count: this_item.count);
+    ApiService().updateProductStatus(new_item);
     setState(() {
       favorite = !favorite;
     });
   }
 
-  void AddShopCart() {
+  void AddShopCart(Items this_item) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: this_item.favorite,
+        shopcart: !this_item.shopcart,
+        count: !this_item.shopcart ? 1 : 0);
+    ApiService().updateProductStatus(new_item);
     setState(() {
       shopcart = !shopcart;
       count = 1;
@@ -121,13 +141,46 @@ class _ItemPageState extends State<ItemPage> {
     });
   }
 
-  void increment() {
+  void increment(Items this_item) {
+    Items new_item = Items(
+        id: this_item.id,
+        name: this_item.name,
+        image: this_item.image,
+        cost: this_item.cost,
+        describtion: this_item.describtion,
+        favorite: this_item.favorite,
+        shopcart: this_item.shopcart,
+        count: this_item.count + 1);
+    ApiService().updateProductStatus(new_item);
     setState(() {
       count += 1;
     });
   }
 
-  void decrement() {
+  void decrement(Items this_item) {
+    Items new_item;
+    if (count == 1) {
+      new_item = Items(
+          id: this_item.id,
+          name: this_item.name,
+          image: this_item.image,
+          cost: this_item.cost,
+          describtion: this_item.describtion,
+          favorite: this_item.favorite,
+          shopcart: false,
+          count: 0);
+    } else {
+      new_item = Items(
+          id: this_item.id,
+          name: this_item.name,
+          image: this_item.image,
+          cost: this_item.cost,
+          describtion: this_item.describtion,
+          favorite: this_item.favorite,
+          shopcart: this_item.shopcart,
+          count: this_item.count - 1);
+    }
+    ApiService().updateProductStatus(new_item);
     setState(() {
       if (count == 1) {
         shopcart = false;
@@ -265,12 +318,12 @@ class _ItemPageState extends State<ItemPage> {
                                             children: [
                                               IconButton(
                                                   onPressed: () =>
-                                                      {AddShopCart()},
+                                                      {AddShopCart(item)},
                                                   icon: const Icon(Icons
                                                       .shopping_cart_outlined)),
                                               IconButton(
                                                   onPressed: () =>
-                                                      {AddFavorite()},
+                                                      {AddFavorite(item)},
                                                   icon: favorite
                                                       ? const Icon(
                                                           Icons.favorite)
@@ -307,7 +360,7 @@ class _ItemPageState extends State<ItemPage> {
                                                 children: [
                                                   IconButton(
                                                       onPressed: () =>
-                                                          {AddFavorite()},
+                                                          {AddFavorite(item)},
                                                       icon: favorite
                                                           ? const Icon(
                                                               Icons.favorite)
@@ -377,7 +430,7 @@ class _ItemPageState extends State<ItemPage> {
                                                     IconButton(
                                                       icon: Icon(Icons.remove),
                                                       onPressed: () =>
-                                                          {decrement()},
+                                                          {decrement(item)},
                                                       iconSize: 30,
                                                     ),
                                                     Container(
@@ -413,7 +466,7 @@ class _ItemPageState extends State<ItemPage> {
                                                     IconButton(
                                                       icon: Icon(Icons.add),
                                                       onPressed: () =>
-                                                          {increment()},
+                                                          {increment(item)},
                                                       iconSize: 30,
                                                     ),
                                                   ]),

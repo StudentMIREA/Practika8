@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:pr8/model/items.dart';
+import 'package:pr8/model/person.dart';
 
 class ApiService {
   final Dio _dio = Dio();
 
-  //final ip = '192.168.1.121';
-  final ip = '10.192.229.70';
+  final ip = '192.168.1.121';
 
   Future<List<Items>> getProducts() async {
     try {
@@ -91,6 +91,22 @@ class ApiService {
     }
   }
 
+  Future<Person> getUserByID(int index) async {
+    final link = 'http://${ip}:8080/users/${index.toString()}';
+    try {
+      final response = await _dio.get(link);
+      if (response.statusCode == 200) {
+        Person product = Person.fromJson(response.data);
+        print(product);
+        return product;
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
   Future<void> updateProductStatus(Items item) async {
     final link = 'http://${ip}:8080/products/update/${item.id}';
     try {
@@ -102,6 +118,25 @@ class ApiService {
         'Favorite': item.favorite,
         'ShopCart': item.shopcart,
         'Count': item.count,
+      });
+      if (response.statusCode == 200) {
+        return;
+      } else {
+        throw Exception('Failed to load products');
+      }
+    } catch (e) {
+      throw Exception('Error fetching products: $e');
+    }
+  }
+
+  Future<void> updateUser(Person item) async {
+    final link = 'http://${ip}:8080/users/update/${item.id}';
+    try {
+      final response = await _dio.put(link, data: {
+        'Name': item.name,
+        'Image': item.image,
+        'Phone': item.phone,
+        'Mail': item.mail,
       });
       if (response.statusCode == 200) {
         return;

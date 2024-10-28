@@ -29,6 +29,9 @@ class _ItemsPageState extends State<ItemsPage> {
   void _refreshData() {
     setState(() {
       ItemsList = ApiService().getProducts();
+      ApiService().getProducts().then(
+            (value) => {UpdatedItemsList = value},
+          );
     });
   }
 
@@ -46,7 +49,9 @@ class _ItemsPageState extends State<ItemsPage> {
         count: this_item.count);
     ApiService().updateProductStatus(new_item);
     setState(() {
-      UpdatedItemsList.elementAt(this_item.id).favorite = !this_item.favorite;
+      UpdatedItemsList.elementAt(
+              UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+          .favorite = !this_item.favorite;
     });
   }
 
@@ -62,9 +67,12 @@ class _ItemsPageState extends State<ItemsPage> {
         count: !this_item.shopcart ? 1 : 0);
     ApiService().updateProductStatus(new_item);
     setState(() {
-      UpdatedItemsList.elementAt(this_item.id).shopcart = !this_item.shopcart;
-      UpdatedItemsList.elementAt(this_item.id).count =
-          !this_item.shopcart ? 1 : 0;
+      UpdatedItemsList.elementAt(
+              UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+          .shopcart = !this_item.shopcart;
+      UpdatedItemsList.elementAt(
+              UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+          .count = !this_item.shopcart ? 1 : 0;
     });
   }
 
@@ -101,7 +109,9 @@ class _ItemsPageState extends State<ItemsPage> {
         count: this_item.count + 1);
     ApiService().updateProductStatus(new_item);
     setState(() {
-      UpdatedItemsList.elementAt(this_item.id).count += 1;
+      UpdatedItemsList.elementAt(
+              UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+          .count += 1;
     });
   }
 
@@ -132,9 +142,13 @@ class _ItemsPageState extends State<ItemsPage> {
     ApiService().updateProductStatus(new_item);
     setState(() {
       if (count == 1) {
-        UpdatedItemsList.elementAt(this_item.id).favorite = false;
+        UpdatedItemsList.elementAt(
+                UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+            .shopcart = false;
       } else {
-        UpdatedItemsList.elementAt(this_item.id).count -= 1;
+        UpdatedItemsList.elementAt(
+                UpdatedItemsList.indexWhere((el) => el.id == this_item.id))
+            .count -= 1;
       }
     });
   }
